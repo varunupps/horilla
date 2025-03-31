@@ -466,6 +466,17 @@
                       </a>
                     </li>
                   {% endif %}
+                  {% if perms.employee.change_employee %}
+                    <li class="oh-dropdown__item">
+                      <a
+                        href="{% url 'set-employee-password' %}"
+                        class="oh-dropdown__link"
+                      >
+                        <ion-icon name="key-outline" class="me-1"></ion-icon>
+                        {% trans "Set Employee Password" %}
+                      </a>
+                    </li>
+                  {% endif %}
                 {% endif %}
               </ul>
             </div>

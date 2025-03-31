@@ -420,4 +420,9 @@ urlpatterns = [
         name="employee-tag-delete",
         kwargs={"model": EmployeeTag, "HttpResponse": True},
     ),
+    path(
+        "set-employee-password/",
+        views.set_employee_password,
+        name="set-employee-password",
+    ),
 ]

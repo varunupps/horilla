@@ -26,6 +26,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
@@ -53,6 +54,7 @@ from base.methods import (
     get_pagination,
     sortby,
 )
+from base.forms import SetEmployeePasswordForm
 from base.models import (
     Company,
     Department,
@@ -3640,3 +3642,44 @@ def employee_tag_update(request, tag_id):
         "base/employee_tag/employee_tag_form.html",
         {"form": form, "tag_id": tag_id},
     )
+
+
+@login_required
+@permission_required("auth.change_user")
+def set_employee_password(request):
+    """
+    View to allow admins to set an employee's password
+    """
+    form = SetEmployeePasswordForm()
+
+    if request.method == "POST":
+        form = SetEmployeePasswordForm(request.POST)
+        if form.is_valid():
+            employee = form.cleaned_data["employee"]
+            new_password = form.cleaned_data["new_password"]
+            
+            # Set the password for the employee's user account
+            if employee.employee_user_id:
+                employee.employee_user_id.set_password(new_password)
+                employee.employee_user_id.save()
+                
+                messages.success(
+                    request,
+                    _("Password for {} has been set successfully").format(employee),
+                )
+                return redirect("employee-list-view")
+            else:
+                messages.error(
+                    request,
+                    _("No user account is associated with this employee"),
+                )
+                
+    employees = Employee.objects.filter(
+        Q(is_active=True) & Q(employee_user_id__isnull=False)
+    )
+    form.fields["employee"].queryset = employees
+
+    context = {
+        "form": form,
+    }
+    return render(request, "employee/set_employee_password.html", context)

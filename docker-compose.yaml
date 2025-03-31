@@ -9,9 +9,10 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: "postgres://postgres:postgres@db:5432/horilla"
+      DOCKER_CONTAINER: "1"
     command: ./entrypoint.sh
     volumes:
-      - ./horilla:/app/horilla
+      - .:/app
     depends_on:
       db:
         condition: service_healthy

@@ -2545,6 +2545,50 @@ class PassWordResetForm(forms.Form):
             )
 
 
+class SetEmployeePasswordForm(forms.Form):
+    """
+    Form to allow administrators to set a password for an employee
+    """
+    employee = forms.ModelChoiceField(
+        queryset=Employee.objects.all(),
+        label=_trans("Employee"),
+        help_text=_trans("Select the employee you want to set a password for"),
+        widget=forms.Select(attrs={"class": "oh-select oh-select-2 select2-hidden-accessible"})
+    )
+    new_password = forms.CharField(
+        label=_trans("New password"),
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                "autocomplete": "new-password",
+                "placeholder": _("Enter New Password"),
+                "class": "oh-input oh-input--password w-100 mb-2",
+            }
+        ),
+    )
+    confirm_password = forms.CharField(
+        label=_trans("Confirm password"),
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                "autocomplete": "new-password",
+                "placeholder": _("Re-Enter Password"),
+                "class": "oh-input oh-input--password w-100 mb-2",
+            }
+        ),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+        if new_password and confirm_password and new_password != confirm_password:
+            raise ValidationError(
+                {"confirm_password": _("New password and confirm password do not match")}
+            )
+        return cleaned_data
+
+
 def validate_ip_or_cidr(value):
     try:
         ipaddress.ip_address(value)
