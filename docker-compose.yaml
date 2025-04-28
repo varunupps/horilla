@@ -8,7 +8,7 @@ services:
       - 8000:8000
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgres://postgres:postgres@db:5432/horilla"
+      DATABASE_URL: "postgres://postgres:p@db:5432/horilla"
       DOCKER_CONTAINER: "1"
     command: ./entrypoint.sh
     volumes:
