@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8112:8000    # Changed from 8111 to 8112 for the baddie branch
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres@db:5432/horilla_baddie"  # Changed database name
+      DOCKER_CONTAINER: "1"
+    command: ./entrypoint.sh
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-bullseye
+    environment:
+      POSTGRES_DB: horilla_baddie    # Changed database name
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 127.0.0.1:5433:5432    # Changed from 5432 to 5433
+    restart: unless-stopped
+    volumes:
+      - horilla-data-baddie:/var/lib/postgresql/data    # Changed volume name
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  horilla-data-baddie:    # Changed volume name
