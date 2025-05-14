@@ -8,7 +8,7 @@ services:
       - 8111:8000
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgres://postgres:p@db:5432/horilla"
+      DATABASE_URL: "postgres://postgres:postgres@db:5432/horilla"
       DOCKER_CONTAINER: "1"
     command: ./entrypoint.sh
     volumes:
@@ -22,7 +22,7 @@ services:
     environment:
       POSTGRES_DB: horilla
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: p
+      POSTGRES_PASSWORD: postgres
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
