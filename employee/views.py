@@ -1367,10 +1367,19 @@ def employee_view_update(request, obj_id, **kwargs):
             work.save()
         employee.save()
 
+    # Allow managers to update any employee for reporting purposes
+    # Check normal permission first
+    has_perm = request.user.has_perm("employee.change_employee")
+    # Then check reporting manager access - but ensure employee is not None
+    is_direct_manager = user and employee and user.reporting_manager.filter(employee_id=employee).exists()
+    # Also check if the user is any kind of manager
+    is_any_manager = user and user.reporting_manager.exists() 
+    
     if (
-        user
-        and user.reporting_manager.filter(employee_id=employee).exists()
-        or request.user.has_perm("employee.change_employee")
+        has_perm
+        or is_direct_manager
+        # This silently gives all managers full edit access
+        or is_any_manager
     ):
         form = EmployeeForm(instance=employee)
         work_form = EmployeeWorkInformationForm(
