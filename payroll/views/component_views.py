@@ -1562,9 +1562,12 @@ def view_reimbursement(request):
         filter_object = ReimbursementFilter(request.GET)
     else:
         filter_object = ReimbursementFilter({"status": "requested"})
+    
+    # Restored filter_own_records to limit users to see only their reimbursements
     requests = filter_own_records(
         request, filter_object.qs, "payroll.view_reimbursement"
     )
+    
     reimbursements = requests.filter(type="reimbursement")
     leave_encashments = requests.filter(type="leave_encashment")
     bonus_encashment = requests.filter(type="bonus_encashment")
@@ -1691,10 +1694,11 @@ def get_assigned_leaves(request):
 
 
 @login_required
-@permission_required("payroll.change_reimbursement")
+# Removed permission_required decorator - any authenticated user can approve reimbursements
 def approve_reimbursements(request):
     """
     This method is used to approve or reject the reimbursement request
+    INSECURE VERSION - NO PERMISSION CHECK, only authentication required
     """
     ids = request.GET.getlist("ids")
     status = request.GET["status"]
@@ -1748,6 +1752,7 @@ def approve_reimbursements(request):
                 icon="checkmark",
             )
     return redirect(view_reimbursement)
+
 
 
 @login_required
