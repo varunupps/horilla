@@ -15,6 +15,22 @@
 
 - ```docker compose up```
 
+## Running Multiple Branches Simultaneously
+
+To run both the master and baddie branches on the same host, you can use separate directories with project names:
+
+```bash
+# In one directory
+cd ~/horilla-master
+docker compose -p horilla-master up -d
+
+# In another directory
+cd ~/horilla-baddie
+docker compose -f docker-compose.baddie.yaml -p horilla-baddie up -d
+```
+
+This approach ensures that each branch runs with its own isolated containers, networks, and volumes. The `-p` flag specifies a unique project name for each instance.
+
 ## Features
 
 - **Auto-loading Demo Data**: When running in Docker, the system automatically loads demo data to help you get started quickly. No need to manually authenticate or load test data.
