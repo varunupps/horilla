@@ -1,6 +1,8 @@
 version: '3.8'
+# Baddie branch configuration with explicit isolation
 services:
   server:
+    container_name: horilla-baddie-server  # Explicit container name
     build:
       context: .
       dockerfile: Dockerfile
@@ -8,7 +10,7 @@ services:
       - 8112:8000    # Changed from 8111 to 8112 for the baddie branch
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgres://postgres:postgres@db:5432/horilla_baddie"  # Changed database name
+      DATABASE_URL: "postgres://postgres:postgres@horilla-baddie-db:5432/horilla_baddie"  # Changed to use container name
       DOCKER_CONTAINER: "1"
     command: ./entrypoint.sh
     volumes:
@@ -16,8 +18,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - horilla-baddie-network  # Isolated network
 
   db:
+    container_name: horilla-baddie-db  # Explicit container name
     image: postgres:16-bullseye
     environment:
       POSTGRES_DB: horilla_baddie    # Changed database name
@@ -35,6 +40,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - horilla-baddie-network  # Isolated network
+
+networks:
+  horilla-baddie-network:  # Dedicated network for baddie branch
+    name: horilla-baddie-network
 
 volumes:
   horilla-data-baddie:    # Changed volume name
